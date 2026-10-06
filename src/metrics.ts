@@ -1,6 +1,8 @@
+import os from 'node:os';
+
 /**
  * TaskFlow Metrics Collector
- * Implementação inicial parcial por Worker 1 (Antigravity Alpha)
+ * Finalizado por Worker 2 (Antigravity Beta) após handoff de Worker 1 (Alpha)
  */
 
 export interface SystemHealth {
@@ -29,6 +31,37 @@ export class MetricsCollector {
     return Math.round((total / filtered.length) * 100) / 100;
   }
 
-  // TODO: Worker 1 não terminou getThroughput e getSystemHealth
-  // TODO: Worker 1 não implementou tests/metrics.test.ts
+  getThroughput(): ThroughputStats {
+    const totalRequests = this.requestLog.length;
+    const elapsedMinutes = Math.max((Date.now() - this.startTime) / (60 * 1000), 1 / 60);
+    const requestsPerMinute = Math.round((totalRequests / elapsedMinutes) * 100) / 100;
+    return {
+      totalRequests,
+      requestsPerMinute
+    };
+  }
+
+  getSystemHealth(): SystemHealth {
+    const mem = process.memoryUsage();
+    const memoryUsageMb = Math.round((mem.heapUsed / (1024 * 1024)) * 100) / 100;
+    const uptimeSeconds = Math.round((Date.now() - this.startTime) / 1000);
+
+    let status: 'healthy' | 'degraded' | 'unhealthy' = 'healthy';
+    if (memoryUsageMb > 500) {
+      status = 'unhealthy';
+    } else if (memoryUsageMb > 250) {
+      status = 'degraded';
+    }
+
+    return {
+      status,
+      memoryUsageMb,
+      uptimeSeconds
+    };
+  }
+
+  reset(): void {
+    this.requestLog = [];
+    this.startTime = Date.now();
+  }
 }
