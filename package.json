@@ -1,0 +1,22 @@
+{
+  "name": "ai-dev-hub-test-runner",
+  "version": "1.0.0",
+  "description": "AI Dev Hub Test Runner - Validação autônoma de desenvolvimento ponta a ponta",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "tsc && node dist/tests/test-runner.js"
+  },
+  "keywords": [
+    "ai-dev-hub",
+    "test-runner"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3"
+  }
+}
