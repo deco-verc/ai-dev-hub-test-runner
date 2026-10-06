@@ -3,6 +3,9 @@
  * Entry point for autonomous end-to-end task validation.
  */
 
+export * from './types.js';
+export * from './validator.js';
+
 export interface TestRunnerConfig {
   projectName: string;
   version: string;
@@ -28,6 +31,3 @@ export function createRunner(config?: Partial<TestRunnerConfig>): TestRunner {
     logLevel: config?.logLevel ?? 'info'
   });
 }
-
-const runner = createRunner();
-runner.run();
