@@ -9,3 +9,4 @@
 
 ## Concluído
 - [x] Inicialização do repositório e pasta de memória .ai-dev-hub
+- [x] Setup do projeto TypeScript e estrutura base
