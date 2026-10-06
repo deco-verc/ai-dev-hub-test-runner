@@ -7,6 +7,7 @@ export * from './types.js';
 export * from './validator.js';
 export * from './store.js';
 export * from './server.js';
+export * from './metrics.js';
 
 export interface TestRunnerConfig {
   projectName: string;

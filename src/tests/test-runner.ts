@@ -10,7 +10,8 @@ import {
   JsonTaskStore,
   createServer,
   ApiResponse,
-  createRunner
+  createRunner,
+  MetricsCollector
 } from '../index.js';
 
 interface TestContext {
@@ -390,6 +391,35 @@ export async function runAllTests(): Promise<{ passed: number; failed: number }>
     ranWithoutThrowing = false;
   }
   assert(ranWithoutThrowing, 'runner.run() executes without unhandled errors');
+
+  // ============================================================
+  // SUITE: Metrics Collector & Health Check (Issue #13)
+  // ============================================================
+  suite('Unit: Metrics Collector & Health Check (Issue #13)');
+
+  const collector = new MetricsCollector();
+  collector.recordRequest('/tasks', 100);
+  collector.recordRequest('/tasks', 200);
+
+  assert(collector.getAverageLatency() === 150, 'Average latency for all routes is 150ms');
+  assert(collector.getAverageLatency('/tasks') === 150, 'Average latency for /tasks route is 150ms');
+  assert(collector.getAverageLatency('/nonexistent') === 0, 'Average latency for non-existent route is 0');
+
+  collector.recordRequest('/health', 30);
+  assert(collector.getAverageLatency('/health') === 30, 'Average latency for /health is 30ms');
+
+  const throughput = collector.getThroughput();
+  assert(throughput.totalRequests === 3, 'Throughput totalRequests is 3');
+  assert(throughput.requestsPerMinute > 0, 'Throughput requestsPerMinute is greater than 0');
+
+  const health = collector.getSystemHealth();
+  assert(['healthy', 'degraded', 'unhealthy'].includes(health.status), 'System health status is valid enum value');
+  assert(health.memoryUsageMb > 0, 'Memory usage MB is greater than 0');
+  assert(health.uptimeSeconds >= 0, 'Uptime seconds is non-negative');
+
+  collector.reset();
+  assert(collector.getAverageLatency() === 0, 'Latency is 0 after reset');
+  assert(collector.getThroughput().totalRequests === 0, 'Total requests is 0 after reset');
 
   // Summary
   const duration = Date.now() - startTime;
